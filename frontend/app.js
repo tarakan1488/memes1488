@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8000'; // Замініть після деплою бекенду
+const API_URL = 'https://memes1488-izrael.onrender.com'; // Замініть після деплою бекенду
 
 // Завантаження при відкритті сторінки
 document.addEventListener('DOMContentLoaded', () => {
