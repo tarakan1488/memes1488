@@ -111,11 +111,13 @@ function renderGallery(memes) {
         const isGif = url.includes('.gif');
         const isVideo = url.endsWith('.mp4') || url.endsWith('.webm');
         
+        // Додаємо бейдж для GIF
         const gifBadgeHTML = (isGif || isVideo) ? `<span class="gif-badge">GIF</span>` : '';
 
+        // Створюємо картинку або відео З ДОДАНИМ onclick для модального вікна
         const mediaHTML = isVideo 
-            ? `<video src="${meme.image_url}" autoplay loop muted playsinline></video>`
-            : `<img src="${meme.image_url}" alt="${meme.title}">`;
+            ? `<video src="${meme.image_url}" autoplay loop muted playsinline onclick="openModal('${meme.image_url}', 'video')"></video>`
+            : `<img src="${meme.image_url}" alt="${meme.title}" onclick="openModal('${meme.image_url}', 'img')">`;
 
         card.innerHTML = `
             ${gifBadgeHTML}
