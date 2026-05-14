@@ -92,6 +92,38 @@ document.getElementById('addMemeForm').addEventListener('submit', async (e) => {
     }
 });
 
+function renderGallery(memes) {
+    const gallery = document.getElementById('gallery');
+    gallery.innerHTML = '';
+    
+    memes.forEach(meme => {
+        const card = document.createElement('div');
+        card.className = 'meme-card';
+        
+        const url = meme.image_url.toLowerCase();
+        const isGif = url.includes('.gif');
+        const isVideo = url.endsWith('.mp4') || url.endsWith('.webm');
+        
+        const gifBadgeHTML = (isGif || isVideo) ? `<span class="gif-badge">GIF</span>` : '';
+
+        const mediaHTML = isVideo 
+            ? `<video src="${meme.image_url}" autoplay loop muted playsinline></video>`
+            : `<img src="${meme.image_url}" alt="${meme.title}">`;
+
+        card.innerHTML = `
+            ${gifBadgeHTML}
+            <button class="delete-btn" onclick="deleteMeme(${meme.id})">×</button>
+            ${mediaHTML}
+            <div class="meme-info">
+                <h3>${meme.title}</h3>
+                <span class="category-tag">${meme.category}</span>
+                <p style="font-size: 0.8rem; color: gray;">${new Date(meme.created_at).toLocaleDateString()}</p>
+            </div>
+        `;
+        gallery.appendChild(card);
+    });
+}
+
 // DELETE: Видалення мема
 async function deleteMeme(id) {
     if(!confirm("Ви впевнені, що хочете видалити цей мем?")) return;
