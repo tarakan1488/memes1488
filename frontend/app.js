@@ -46,17 +46,24 @@ async function fetchCategories() {
 function renderGallery(memes) {
     const gallery = document.getElementById('gallery');
     gallery.innerHTML = '';
-
+    
     memes.forEach(meme => {
         const card = document.createElement('div');
         card.className = 'meme-card';
+        
+        const url = meme.image_url.toLowerCase();
+        const isVideo = url.endsWith('.mp4') || url.endsWith('.webm');
+        
+        const mediaHTML = isVideo 
+            ? `<video src="${meme.image_url}" autoplay loop muted playsinline onclick="openModal('${meme.image_url}', 'video')"></video>`
+            : `<img src="${meme.image_url}" alt="${meme.title}" onclick="openModal('${meme.image_url}', 'img')">`;
+
         card.innerHTML = `
             <button class="delete-btn" onclick="deleteMeme(${meme.id})">×</button>
-            <img src="${meme.image_url}" alt="${meme.title}">
+            ${mediaHTML}
             <div class="meme-info">
                 <h3>${meme.title}</h3>
                 <span class="category-tag">${meme.category}</span>
-                <p style="font-size: 0.8rem; color: gray;">${new Date(meme.created_at).toLocaleDateString()}</p>
             </div>
         `;
         gallery.appendChild(card);
@@ -137,3 +144,29 @@ async function deleteMeme(id) {
         console.error("Помилка видалення:", error);
     }
 }
+
+const modal = document.getElementById('imageModal');
+const modalContent = document.getElementById('modalContent');
+
+function openModal(src, type) {
+    modal.style.display = "flex";
+    if (type === 'video') {
+        modalContent.innerHTML = `<video src="${src}" class="modal-content" autoplay loop controls></video>`;
+    } else {
+        modalContent.innerHTML = `<img src="${src}" class="modal-content">`;
+    }
+}
+
+// Закрытие при клике на крестик
+document.querySelector('.close-modal').onclick = () => {
+    modal.style.display = "none";
+    modalContent.innerHTML = ''; // Очищаем, чтобы видео перестало играть
+};
+
+// Закрытие при клике на темный фон
+window.onclick = (event) => {
+    if (event.target == modal) {
+        modal.style.display = "none";
+        modalContent.innerHTML = '';
+    }
+};
