@@ -1,17 +1,30 @@
-from pydantic import BaseModel, HttpUrl
+from sqlalchemy import Column, Integer, String, DateTime
 from datetime import datetime
-from typing import Optional
+from pydantic import BaseModel
+from database import Base
 
-# Модель для отримання даних від користувача (POST)
+# --- СХЕМА ДЛЯ БАЗИ ДАНИХ (SQLAlchemy) ---
+class MemeDB(Base):
+    __tablename__ = "memes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String)
+    image_url = Column(String)
+    category = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+# --- СХЕМИ ДЛЯ ПЕРЕДАЧІ ДАНИХ (Pydantic) ---
 class MemeCreate(BaseModel):
     title: str
-    image_url: str # Використовуємо звичайний рядок для простоти, але можна HttpUrl
+    image_url: str
     category: str
 
-# Модель для відправки даних на фронтенд (GET)
 class MemeResponse(BaseModel):
     id: int
     title: str
     image_url: str
     category: str
     created_at: datetime
+
+    class Config:
+        from_attributes = True  # Дозволяє Pydantic читати дані з бази
