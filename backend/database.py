@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 import os
 
 # Render автоматично надасть посилання на базу через змінну оточення
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "тут_твоє_посилання_з_supabase")
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:zalupadeda228@db.sttlsmpdrcwvkqypvouc.supabase.co:5432/postgres")
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
