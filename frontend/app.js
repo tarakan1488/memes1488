@@ -1,0 +1,107 @@
+const API_URL = 'http://localhost:8000'; // Замініть після деплою бекенду
+
+// Завантаження при відкритті сторінки
+document.addEventListener('DOMContentLoaded', () => {
+    fetchMemes();
+    fetchCategories();
+});
+
+// GET: Отримання мемів (з фільтрами)
+async function fetchMemes() {
+    const category = document.getElementById('categoryFilter').value;
+    const sort = document.getElementById('sortFilter').value;
+    
+    let url = `${API_URL}/memes?sort_by=${sort}`;
+    if (category) {
+        url += `&category=${category}`;
+    }
+
+    try {
+        const response = await fetch(url);
+        const memes = await response.json();
+        renderGallery(memes);
+    } catch (error) {
+        console.error("Помилка завантаження мемів:", error);
+    }
+}
+
+// GET: Отримання категорій для селекта
+async function fetchCategories() {
+    try {
+        const response = await fetch(`${API_URL}/categories`);
+        const categories = await response.json();
+        
+        const filterSelect = document.getElementById('categoryFilter');
+        filterSelect.innerHTML = '<option value="">Всі категорії</option>';
+        
+        categories.forEach(cat => {
+            filterSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
+        });
+    } catch (error) {
+        console.error("Помилка завантаження категорій:", error);
+    }
+}
+
+// Рендер карток мемів
+function renderGallery(memes) {
+    const gallery = document.getElementById('gallery');
+    gallery.innerHTML = '';
+
+    memes.forEach(meme => {
+        const card = document.createElement('div');
+        card.className = 'meme-card';
+        card.innerHTML = `
+            <button class="delete-btn" onclick="deleteMeme(${meme.id})">×</button>
+            <img src="${meme.image_url}" alt="${meme.title}">
+            <div class="meme-info">
+                <h3>${meme.title}</h3>
+                <span class="category-tag">${meme.category}</span>
+                <p style="font-size: 0.8rem; color: gray;">${new Date(meme.created_at).toLocaleDateString()}</p>
+            </div>
+        `;
+        gallery.appendChild(card);
+    });
+}
+
+// POST: Додавання мема
+document.getElementById('addMemeForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const newMeme = {
+        title: document.getElementById('title').value,
+        image_url: document.getElementById('imageUrl').value,
+        category: document.getElementById('category').value
+    };
+
+    try {
+        const response = await fetch(`${API_URL}/memes`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newMeme)
+        });
+
+        if (response.ok) {
+            document.getElementById('addMemeForm').reset();
+            fetchMemes(); // Оновлюємо галерею
+            fetchCategories(); // Оновлюємо список категорій
+        }
+    } catch (error) {
+        console.error("Помилка створення мема:", error);
+    }
+});
+
+// DELETE: Видалення мема
+async function deleteMeme(id) {
+    if(!confirm("Ви впевнені, що хочете видалити цей мем?")) return;
+
+    try {
+        await fetch(`${API_URL}/memes/${id}`, {
+            method: 'DELETE'
+        });
+        fetchMemes(); // Оновлюємо галерею після видалення
+    } catch (error) {
+        console.error("Помилка видалення:", error);
+    }
+}
